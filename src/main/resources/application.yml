@@ -1,0 +1,16 @@
+spring:
+  ai:
+    anthropic:
+      base-url: https://api.moonshot.cn/anthropic
+      api-key: ${MOONSHOT_API_KEY}
+      chat:
+        options:
+          model: moonshot-v1
+          temperature: 0.3
+
+app:
+  rag:
+    top-k: 4
+
+server:
+  port: 8080
