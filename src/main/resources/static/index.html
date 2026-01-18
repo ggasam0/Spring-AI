@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spring AI Chat</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script crossorigin src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin: 0; background: #f6f7fb; }
+    .container { max-width: 960px; margin: 0 auto; padding: 32px; }
+    .card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 10px 24px rgba(0,0,0,0.06); }
+    .row { display: flex; gap: 12px; margin-top: 16px; }
+    input, select, textarea { padding: 12px; border-radius: 8px; border: 1px solid #d5d8e1; width: 100%; }
+    button { padding: 12px 18px; border-radius: 8px; border: none; background: #3b82f6; color: #fff; cursor: pointer; }
+    button:disabled { background: #9db9f7; cursor: not-allowed; }
+    .messages { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
+    .message { padding: 12px 16px; border-radius: 10px; }
+    .user { background: #e0ecff; align-self: flex-end; }
+    .assistant { background: #f2f3f8; align-self: flex-start; }
+    .tag { font-size: 12px; color: #64748b; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    const { useState } = React;
+
+    function App() {
+      const [sessionId, setSessionId] = useState('demo-session');
+      const [message, setMessage] = useState('');
+      const [mode, setMode] = useState('chat');
+      const [messages, setMessages] = useState([]);
+      const [loading, setLoading] = useState(false);
+
+      const send = async () => {
+        if (!message.trim()) return;
+        const payload = { sessionId, message };
+        const endpoint = mode === 'rag' ? '/api/ask' : mode === 'tool' ? '/api/assist' : '/api/chat';
+        const newMessages = [...messages, { role: 'user', text: message }];
+        setMessages(newMessages);
+        setLoading(true);
+        setMessage('');
+        try {
+          const { data } = await axios.post(endpoint, payload);
+          setMessages([...newMessages, { role: 'assistant', text: data.answer, meta: data.toolUsed }]);
+        } catch (err) {
+          setMessages([...newMessages, { role: 'assistant', text: '请求失败，请检查后端服务。' }]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        React.createElement('div', { className: 'container' },
+          React.createElement('h1', null, 'Spring AI Chat Demo'),
+          React.createElement('div', { className: 'card' },
+            React.createElement('div', { className: 'row' },
+              React.createElement('input', {
+                value: sessionId,
+                onChange: (e) => setSessionId(e.target.value),
+                placeholder: 'Session ID'
+              }),
+              React.createElement('select', {
+                value: mode,
+                onChange: (e) => setMode(e.target.value)
+              },
+                React.createElement('option', { value: 'chat' }, '纯聊天'),
+                React.createElement('option', { value: 'rag' }, 'RAG问答'),
+                React.createElement('option', { value: 'tool' }, '工具调用')
+              )
+            ),
+            React.createElement('div', { className: 'row' },
+              React.createElement('textarea', {
+                rows: 3,
+                value: message,
+                onChange: (e) => setMessage(e.target.value),
+                placeholder: '输入问题...'
+              })
+            ),
+            React.createElement('div', { className: 'row' },
+              React.createElement('button', { onClick: send, disabled: loading }, loading ? '发送中...' : '发送')
+            ),
+            React.createElement('div', { className: 'messages' },
+              messages.map((item, idx) =>
+                React.createElement('div', { key: idx, className: `message ${item.role}` },
+                  React.createElement('div', { className: 'tag' }, item.role === 'user' ? '用户' : `助手${item.meta ? ' · ' + item.meta : ''}`),
+                  React.createElement('div', null, item.text)
+                )
+              )
+            )
+          )
+        )
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>
