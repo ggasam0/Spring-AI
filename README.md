@@ -12,6 +12,34 @@
 
 ## 快速开始
 
+<<<<<<< codex/implement-spring-ai-chat-project-phases-yofwp1
+### Windows 11 环境
+
+1. 安装 **JDK 17** 与 **Maven 3.9+**，并配置环境变量：
+
+   - `JAVA_HOME` 指向 JDK 安装目录
+   - `Path` 中包含 `%JAVA_HOME%\\bin` 和 Maven 的 `bin`
+
+2. 设置 Moonshot API Key（PowerShell）：
+
+```powershell
+$env:MOONSHOT_API_KEY="你的Key"
+```
+
+3. 启动应用：
+
+```powershell
+mvn spring-boot:run
+```
+
+4. 打开浏览器访问：`http://localhost:8080`
+
+> 如果需要长期保存环境变量，可在「系统属性 → 高级 → 环境变量」中新增 `MOONSHOT_API_KEY`。
+
+### macOS / Linux
+
+=======
+>>>>>>> main
 ```bash
 export MOONSHOT_API_KEY=你的Key
 mvn spring-boot:run
