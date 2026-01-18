@@ -5,7 +5,7 @@ spring:
       api-key: ${MOONSHOT_API_KEY}
       chat:
         options:
-          model: moonshot-v1
+          model: moonshot-v1-8k
           temperature: 0.3
 
 app:
